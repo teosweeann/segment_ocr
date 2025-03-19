@@ -25,12 +25,16 @@ If you choose to use openAI's model, you will need to set environment:
 `     setenv OPENAI_API_KEY <Your Key>`
 
 To use Gemma3, you have to uncomment line that has `ask_gemma3` in ocr.py
-`from ai_wrapper import ask_gpt as ask
-#from ai_wrapper import ask_gemma3 as ask`
+
+`from ai_wrapper import ask_gpt as ask`
+
+`#from ai_wrapper import ask_gemma3 as ask`
 
 To use OpenAI, you have to uncomment line that has `ask_gpt` in ocr.py
-`#from ai_wrapper import ask_gpt as ask
-from ai_wrapper import ask_gemma3 as ask`
+
+`#from ai_wrapper import ask_gpt as ask`
+
+`from ai_wrapper import ask_gemma3 as ask`
 
 There are some magic numbers in the code that are tuned for IEEE papers, such as text densities. These were added to combat the occasional halluncination problem of Gemma3. 
 
