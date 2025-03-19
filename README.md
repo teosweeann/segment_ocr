@@ -24,10 +24,18 @@ You can choose to use GPT4o or Gemma3 model. GPT4o gives more accurate transcrip
 If you choose to use openAI's model, you will need to set environment:
 `     setenv OPENAI_API_KEY <Your Key>`
 
+To use Gemma3, you have to uncomment line that has `ask_gemma3` in ocr.py
+`from ai_wrapper import ask_gpt as ask
+#from ai_wrapper import ask_gemma3 as ask`
+
+To use OpenAI, you have to uncomment line that has `ask_gpt` in ocr.py
+`#from ai_wrapper import ask_gpt as ask
+from ai_wrapper import ask_gemma3 as ask`
+
 There are some magic numbers in the code that are tuned for IEEE papers, such as text densities. These were added to combat the occasional halluncination problem of Gemma3. 
 
 If you wish to redo a certain page of the transcription, you can run 
-`    extract_with_text.py outputs/<desiredDir> <pageNum>`
+`extract_with_text.py outputs/<desiredDir> <pageNum>`
 
 # TODO
 1. Concatenate the title of the papers. 
