@@ -1,0 +1,34 @@
+# INSTALLATION 
+
+This was developed for a Mac operating system. If you need run this on other systems, follow the principles of "Make It Yourself Revolution". 
+
+Install Python 3.12. 
+pip install -r requirements.txt
+
+Getting Gemma3:
+1. Install Ollama on your computer. 
+2. Run this command:
+       ollama run gemma3:27b
+
+# USAGE
+To convert a PDF to markdown:
+       python ieee2md.py <paper.pdf>
+
+The output will be found in the outputs directory. The outputs include:
+1. `text_*.md` which are the markdown files
+2. `images_*.jpg` which are there for debugging purpose. You can turn it off if you don't need it. 
+3. `fig*` the figures that are included in the markdown files. 
+
+You can choose to use GPT4o or Gemma3 model. GPT4o gives more accurate transcription in general.  Gemma3 tend to do some strange things with the document headers and footers. It is not to do with font size or sampling rate. 
+
+If you choose to use openAI's model, you will need to set environment:
+`     setenv OPENAI_API_KEY <Your Key>`
+
+There are some magic numbers in the code that are tuned for IEEE papers, such as text densities. These were added to combat the occasional halluncination problem of Gemma3. 
+
+If you wish to redo a certain page of the transcription, you can run 
+`    extract_with_text.py outputs/<desiredDir> <pageNum>`
+
+# TODO
+1. Concatenate the title of the papers. 
+2. Fix the red-blue color swap (smurf) problem. 
