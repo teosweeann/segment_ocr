@@ -40,3 +40,10 @@ If you wish to redo a certain page of the transcription, you can run
 # TODO
 1. Concatenate the title of the papers. 
 2. Fix the red-blue color swap (smurf) problem. 
+
+# How it works
+The script first partitions the page into rows and columns with a preference for column over row. The chunks are order from left to right, and from top to bottom. Only the coordinates of the boxes are saved in `bb*.txt`. 
+A second script `extract_with_text.py` then reads in these coordinates, identify the text, figures and table, OCR if needed and reassemble the pages into markdown.  Below you see the ordering of the bounding boxes. 
+
+<img src="./images/image_002.jpeg" alt="img_002" width="800">
+
