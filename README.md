@@ -6,7 +6,7 @@ Install Python 3.12. Then navigate to the `segment_ocr` directory and run:
 
 `pip install -r requirements.txt`
 
-You also need tesseract. Install `brew` if you don't have it:
+You also need tesseract. Install `brew` if needed:
 
 `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
 
