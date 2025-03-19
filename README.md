@@ -2,8 +2,15 @@
 
 This was developed for a Mac operating system. If you need run this on other systems, follow the principles of "Make It Yourself Revolution". 
 
-Install Python 3.12. 
-pip install -r requirements.txt
+Install Python 3.12. Then navigate to the `segment_ocr` directory and run: 
+
+`pip install -r requirements.txt`
+
+You also need tesseract. Install `brew` if you don't have it:
+
+`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+
+`brew install tesseract`
 
 Getting Gemma3:
 1. Install Ollama on your computer. 
