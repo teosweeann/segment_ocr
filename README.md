@@ -22,9 +22,10 @@ To convert a PDF to markdown:
        python ieee2md.py <paper.pdf>
 
 The output will be found in the outputs directory. The outputs include:
-1. `text_*.md` which are the markdown files
+1. `text_*.md` which are the markdown files and transcription of the pages. You can use **Typora** to open these markdown docs. The equations and figures should render correctly. 
 2. `images_*.jpg` which are there for debugging purpose. You can turn it off if you don't need it. 
 3. `fig*` the figures that are included in the markdown files. 
+4. `bb*.txt` are coordinates of bounding boxes. 
 
 You can choose to use GPT4o or Gemma3 model. GPT4o gives more accurate transcription in general.  Gemma3 tend to do some strange things with the document headers and footers. It is not to do with font size or sampling rate. 
 
