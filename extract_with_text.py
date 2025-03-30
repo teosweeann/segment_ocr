@@ -93,10 +93,11 @@ def extract(path, pages=None):
                 if delta<0 and bx > page.bnd_boxes[i][1]: break
                 if delta>0 and tx < page.bnd_boxes[i][0]: break
                 if j in fig_indexes or j in cap_indexes or j in table_indexes: break # Already in the list
-                print('#3 fig', j, mode, page.is_table(j), page.is_small_block(j))
-                if mode=='table' and not page.is_table(j) and not page.is_small_block(j)  and delta*(i-j)>1: break
+                print('#3 fig', j, mode, page.is_table(j), page.is_small_block(j), delta*(j-i))
+                if mode=='table' and not page.is_table(j) and not page.is_small_block(j) and delta*(j-i)>1: break
                 if page.is_figure(j) or page.is_table(j) or page.is_small_block(j) or \
-                        (j+delta>=0 and j+delta<len(page) and page.is_figure(j+delta) and not j+delta in fig_indexes):
+                        (j+delta>=0 and j+delta<len(page) and (page.is_figure(j+delta) or page.is_table(j+delta)) \
+                        and not j+delta in fig_indexes):
                     fig_indexes.append(j)
                     obox.append(j)
                     j += delta

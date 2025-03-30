@@ -63,7 +63,7 @@ class Page:
             text = 'fig. text_density<0.8'
         else:
             text = self.classify(index)
-        return text.startswith('fig.') or text.startswith('figure')
+        return text.startswith('fig.') or text.startswith('figure') or text.startswith('flowchart')
 
     @lru_cache(maxsize=32)
     def is_table(self, index: int) -> bool:
@@ -122,10 +122,12 @@ class Page:
         top, bottom, left, right = self.bnd_boxes[index]
         is_small_size = (right - left < self.width / 2 and bottom - top < 150)
         # Remove spaces and strip to get actual character count
-        text_length = len(ocr.tesseract(self[index]).strip().replace(" ", ""))
-        is_small_text = text_length < 50
-        print("IS SMALL?", is_small_size, is_small_text, text_length, (right-left), bottom-top)
-        return is_small_size and is_small_text
+        tt = ocr.tesseract(self[index])
+        text_length = len(tt.strip().replace(" ", ""))
+        is_fig = self.is_figure(index)
+        is_small_text = text_length < 20 and '(' in tt
+        print("IS SMALL?",is_fig, is_small_size, is_small_text, text_length, (right-left), bottom-top)
+        return is_fig or (is_small_size and is_small_text)
 
 
     @lru_cache(maxsize=32)

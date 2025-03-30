@@ -7,11 +7,20 @@ from PIL import Image
 from pytesseract import image_to_string
 import base64
 import requests
-#from ai_wrapper import ask_gpt as ask
-from ai_wrapper import ask_gemma3 as ask
 
 API_URL = "https://api.openai.com/v1/chat/completions"
 API_KEY = os.environ.get("OPENAI_API_KEY")
+
+import subprocess
+
+def ping_google():
+    # Ping www.google.com once
+    output = subprocess.run(
+        ["ping", "-c", "1", '-W', '1', "www.google.com"],
+        capture_output=True, text=True)
+    # Check if the ping command was successful
+    if output.returncode == 0: return True
+    return False
 
 def tesseract(image, lang=None):
     if image is None:
@@ -73,7 +82,7 @@ def _transcribe(image):
 
 def classify_image(image):
     output = ask( 
-            'Please help me classify this image as ["text only", "figure", "table", '
+            'Please help me classify this image as ["text only", "figure", "table", "flowchart", '
             '"caption", "figure containing text", "separate figure and text", "figure with caption", '
             '"table with caption"]. Omit wrapper text and provide the answer only. ',
             image ).lower().strip('"').strip()
@@ -81,7 +90,8 @@ def classify_image(image):
 
 def table_cap_position(image):
     output = ask( 
-            "Does the caption preceed or follow the tabular data? "
+            "Locate the tables in this page. Do the captions of these tables preceed or follow the tables? "
+            "These captions start with 'Table'. "
             "Omit wrapper text and reply with 'preceed' or 'follow', and also give the locations. "
             "Check three times before replying. ",
             image ).lower().strip("'").strip()
@@ -90,7 +100,7 @@ def table_cap_position(image):
 
 def figure_cap_position(image):
     output = ask( 
-            "Does the caption of figures preceed or follow the figure? "
+            "Locate the figures in this page. Does the caption of these figures preceed or follow these figures? "
             "Omit wrapper text and reply with 'preceed' or 'follow', and also give the locations. "
             "Check three times before replying. ",
             image ).lower().strip("'").strip()
@@ -156,3 +166,7 @@ def segment_image(image, search_range=50):
     return top_part, bottom_part
 
 
+if ping_google():
+    from ai_wrapper import ask_gpt as ask
+else:
+    from ai_wrapper import ask_gemma3 as ask
