@@ -120,7 +120,7 @@ def invert_if_dark_bg(image, mode_threshold=128):
     else:
         return image
 
-def segment_row_reverse(image, dw=50, tblr=None, end_flag=False, level=0):
+def segment_row_reverse(image, dw=20, tblr=None, end_flag=False, level=0, no_col=False):
     if DEBUG: print('get reverse row:', tblr, level, dw)
     if tblr is None:
         tblr = trim_edges(image)
@@ -138,13 +138,13 @@ def segment_row_reverse(image, dw=50, tblr=None, end_flag=False, level=0):
     horizontal_sum = np.sum(binary, axis=1) / 255  
     height = binary.shape[0]
     width  = binary.shape[1]
-    threshold = 0.02 
-    if height>300 and width>image.shape[1]*0.35:
+    threshold = 0.01 
+    if height>300 and width>image.shape[1]*0.35 and not no_col:
         ans = segment_column(image, tblr=tblr, dw=30, level=level)
         if len(ans)>1: return ans
         ans = segment_column(image, tblr=tblr, dw=25, level=level)
         if len(ans)>1: return ans
-    if height>1000 and width>image.shape[1]*0.35:
+    if height>1000 and width>image.shape[1]*0.35 and not no_col:
         ans = segment_column(image, tblr=tblr, dw=20, level=level)
         if len(ans)>1: return ans
         ans = segment_column(image, tblr=tblr, dw=15, level=level)
@@ -172,17 +172,17 @@ def segment_row_reverse(image, dw=50, tblr=None, end_flag=False, level=0):
             t2 = tblr.copy(); t2[0] = t2[0]+i+dw-1
             text = ocr.tesseract(b).lower()
             if 'license' in text or 'confidential' in text or 'ieee' in text:
-                return segment_row_reverse(image, tblr=t1, dw=5, level=level) + segment_row(image, tblr=t2, level=level+1)
+                return segment_row_reverse(image, tblr=t1, dw=5, level=level, no_col=no_col) + segment_row(image, tblr=t2, level=level+1, no_col=no_col)
             else:
-                return segment_row(image, tblr=tblr, level=level+1)
+                return segment_row(image, tblr=tblr, level=level+1, no_col=no_col)
     if DEBUG: 
          print("REVERSE CAPTURE FAILED")
          cv2.imshow('FAILED', tmp_img)
          cv2.waitKey(WT)
          cv2.destroyAllWindows()
-    return segment_row(image, tblr=tblr, level=level+1)
+    return segment_row(image, tblr=tblr, level=level+1, no_col=no_col)
 
-def segment_row(image, dw=50, tblr=None, end_flag=False, level=0):
+def segment_row(image, dw=20, tblr=None, end_flag=False, level=0, no_col=False):
     if DEBUG: print('get row:', tblr, level)
     if type(dw)==list: raise
     if tblr is None:
@@ -201,9 +201,9 @@ def segment_row(image, dw=50, tblr=None, end_flag=False, level=0):
     horizontal_sum = np.sum(binary, axis=1) / 255  
     height = binary.shape[0]
     width = binary.shape[1]
-    threshold = 0.02 
+    threshold = 0.01 
     if DEBUG: print("Level:", level)
-    if height>1000: # and width>image.shape[1]*0.2:
+    if height>1000 and not no_col: # and width>image.shape[1]*0.2:
         ans = segment_column(image, tblr=tblr, dw=30, level=level)
         if len(ans)>1: return ans
         ans = segment_column(image, tblr=tblr, dw=20, level=level)
@@ -237,17 +237,21 @@ def segment_row(image, dw=50, tblr=None, end_flag=False, level=0):
                 cv2.waitKey(WT)
                 cv2.destroyAllWindows()
             if level==0:
-                ans2 = segment_row_reverse(image, tblr=t2, dw=5, level=level)
-                return segment_row(image, tblr=t1, level=level+1) + ans2
-            if height>500:
-                ans = segment_column(image, tblr=t2, dw=20, level=level+1)
+                ans2 = segment_row_reverse(image, tblr=t2, dw=5, level=level, no_col=no_col)
+                return segment_row(image, tblr=t1, level=level+1, no_col=no_col) + ans2
+            if not no_col:
+                if height>500:
+                    ans = segment_column(image, tblr=t2, dw=20, level=level+1)
+                else:
+                    ans = segment_column(image, tblr=t2, dw=dw+10, level=level+1)
             else:
-                ans = segment_column(image, tblr=t2, dw=dw+10, level=level+1)
+                return segment_row(image, tblr=t1, level=level+1, no_col=no_col) + \
+                        segment_row(image, tblr=t2, level=level+1, no_col=no_col)
             if len(ans)>1:
-                return segment_row(image, tblr=t1, level=level+1) + ans
+                return segment_row(image, tblr=t1, level=level+1, no_col=no_col) + ans
             else:
-                return segment_row(image, tblr=t1, level=level+1) + \
-                        segment_row(image, tblr=t2, level=level+1)
+                return segment_row(image, tblr=t1, level=level+1, no_col=no_col) + \
+                        segment_row(image, tblr=t2, level=level+1, no_col=no_col)
    
     if start_row>0:
         in_text = False
@@ -279,23 +283,28 @@ def segment_row(image, dw=50, tblr=None, end_flag=False, level=0):
                     cv2.waitKey(WT)
                     cv2.destroyAllWindows()
                 if level==0:
-                    ans2 = segment_row_reverse(image, tblr=t2, dw=3, level=level+1)
-                    return segment_row(image, tblr=t1, level=level+1) + ans
-                if height>500:
-                    ans = segment_column(image, tblr=t2, dw=15, level=level+1)
+                    ans2 = segment_row_reverse(image, tblr=t2, dw=3, level=level+1, no_col=no_col)
+                    return segment_row(image, tblr=t1, level=level+1, no_col=no_col) + ans
+                if not no_col:
+                    if height>500:
+                        ans = segment_column(image, tblr=t2, dw=15, level=level+1)
+                    else:
+                        ans = segment_column(image, tblr=t2, dw=dw+10, level=level+1)
                 else:
-                    ans = segment_column(image, tblr=t2, dw=dw+10, level=level+1)
+                    return segment_row(image, tblr=t1, level=level+1, no_col=no_col) + \
+                            segment_row(image, tblr=t2, level=level+1, no_col=no_col)
                 if len(ans)>1:
-                    return segment_row(image, tblr=t1, level=level+1) + ans
+                    return segment_row(image, tblr=t1, level=level+1, no_col=no_col) + ans
                 else:
-                    return segment_row(image, tblr=t1, level=level+1) + \
-                            segment_row(image, tblr=t2, level=level+1)
+                    return segment_row(image, tblr=t1, level=level+1, no_col=no_col) + \
+                            segment_row(image, tblr=t2, level=level+1, no_col=no_col)
 
-    ans = segment_column(image, tblr=tblr, dw=dw+15, level=level+1)
-    if len(ans)>1: 
-        return ans
+    if not no_col:
+        ans = segment_column(image, tblr=tblr, dw=dw+15, level=level+1)
+        if len(ans)>1: 
+            return ans
     elif dw>=15: 
-        return segment_row(image, tblr=tblr, dw=dw-5, level=level)
+        return segment_row(image, tblr=tblr, dw=dw-5, level=level, no_col=no_col)
     return [tblr]
 
 def segment_column(image, tblr=None, dw=50, level=0):
@@ -316,7 +325,7 @@ def segment_column(image, tblr=None, dw=50, level=0):
     vertical_sum = np.sum(binary, axis=0) / 255  
     height = binary.shape[0]
     width = binary.shape[1]
-    threshold = 0.02  
+    threshold = 0.01  
     if level>3 and dw>20: dw=20
     in_text0 = False
     j0 = None
